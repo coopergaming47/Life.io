@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Life OS Dashboard</title>
+<link rel="manifest" href="#" />
+<meta name="theme-color" content="#0a0a0a" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg: #0a0a0a;
+    --bg2: #111111;
+    --bg3: #1a1a1a;
+    --bg4: #222222;
+    --border: #2a2a2a;
+    --border2: #333333;
+    --text: #f0f0f0;
+    --text2: #999999;
+    --text3: #555555;
+    --accent: #e8ff6b;
+    --accent2: #b8d400;
+    --green: #4ade80;
+    --red: #f87171;
+    --orange: #fb923c;
+    --blue: #60a5fa;
+    --purple: #a78bfa;
+    --font: 'Space Grotesk', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* TICKER */
+  .ticker-wrap {
+    background: var(--accent);
+    color: #0a0a0a;
+    height: 36px;
+    overflow: hidden;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+  }
+  .ticker-label {
+    background: #0a0a0a;
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    padding: 0 14px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .ticker-track {
+    display: flex;
+    animation: ticker 40s linear infinite;
+    white-space: nowrap;
+  }
+  .ticker-track:hover { animation-play-state: paused; }
+  .ticker-item {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 0 32px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ticker-item .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #0a0a0a;
+    opacity: 0.4;
+  }
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* NAV */
+  nav {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  .nav-logo {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-right: 20px;
+    white-space: nowrap;
+    letter-spacing: -0.02em;
+  }
+  .nav-tab {
+    padding: 14px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text2);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .nav-tab svg { width: 15px; height: 15px; }
+
+  /* LAYOUT */
+  main { padding: 24px; max-width: 1400px; margin: 0 auto; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .card-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--text3);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+  /* STAT PILL */
+  .stat { background: var(--bg3); border-radius: 10px; padding: 16px 18px; }
+  .stat-label { font-size: 11px; color: var(--text3); font-family: var(--mono); letter-spacing: 0.05em; margin-bottom: 6px; }
+  .stat-val { font-size: 26px; font-weight: 600; line-height: 1; }
+  .stat-sub { font-size: 11px; color: var(--text2); margin-top: 4px; }
+
+  /* BADGE */
+  .badge {
+    font-size: 10px; font-family: var(--mono); font-weight: 600;
+    padding: 2px 8px; border-radius: 4px; letter-spacing: 0.05em;
+  }
+  .badge-green { background: rgba(74,222,128,0.15); color: var(--green); }
+  .badge-red { background: rgba(248,113,113,0.15); color: var(--red); }
+  .badge-orange { background: rgba(251,146,60,0.15); color: var(--orange); }
+  .badge-blue { background: rgba(96,165,250,0.15); color: var(--blue); }
+  .badge-accent { background: rgba(232,255,107,0.15); color: var(--accent); }
+
+  /* BTN */
+  btn, .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 8px; font-family: var(--font);
+    font-size: 13px; font-weight: 500; cursor: pointer; border: none;
+    transition: all 0.15s;
+  }
+  .btn-accent { background: var(--accent); color: #0a0a0a; }
+  .btn-accent:hover { background: var(--accent2); }
+  .btn-ghost { background: var(--bg3); color: var(--text2); border: 1px solid var(--border); }
+  .btn-ghost:hover { color: var(--text); border-color: var(--border2); }
+  .btn-danger { background: rgba(248,113,113,0.1); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
+
+  /* PROGRESS BAR */
+  .progress-track { background: var(--bg4); border-radius: 4px; height: 6px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+
+  /* TOGGLE */
+  .toggle { position: relative; width: 36px; height: 20px; cursor: pointer; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute; inset: 0;
+    background: var(--bg4); border-radius: 20px;
+    transition: background 0.2s;
+  }
+  .toggle-slider::before {
+    content: ''; position: absolute;
+    width: 14px; height: 14px;
+    left: 3px; top: 3px;
+    background: var(--text3); border-radius: 50%;
+    transition: transform 0.2s, background 0.2s;
+  }
+  .toggle input:checked + .toggle-slider { background: var(--accent); }
+  .toggle input:checked + .toggle-slider::before { transform: translateX(16px); background: #0a0a0a; }
+
+  /* INPUT */
+  input[type=text], input[type=number], select {
+    background: var(--bg3); border: 1px solid var(--border);
+    color: var(--text); border-radius: 8px;
+    padding: 8px 12px; font-family: var(--font); font-size: 13px;
+    outline: none; transition: border-color 0.15s; width: 100%;
+  }
+  input[type=text]:focus, input[type=number]:focus, select:focus {
+    border-color: var(--accent);
+  }
+  select option { background: var(--bg2); }
+
+  /* ============ SECTION SPECIFIC ============ */
+
+  /* HEALTH */
+  .supp-window { margin-bottom: 12px; }
+  .supp-window-header {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 12px; font-family: var(--mono);
+    color: var(--text2); margin-bottom: 8px;
+  }
+  .supp-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px; background: var(--bg3);
+    border-radius: 8px; margin-bottom: 6px;
+    border: 1px solid var(--border); cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .supp-row.missed { border-color: rgba(248,113,113,0.4); animation: flash 2s ease-in-out infinite; }
+  .supp-row.taken { opacity: 0.5; }
+  @keyframes flash { 0%,100%{border-color:rgba(248,113,113,0.4)} 50%{border-color:rgba(248,113,113,0.9)} }
+  .supp-name { flex: 1; font-size: 13px; }
+  .supp-dose { font-size: 11px; color: var(--text2); font-family: var(--mono); }
+
+  /* WEIGHT CHART */
+  canvas { width: 100% !important; }
+
+  /* GYM */
+  .exercise-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; background: var(--bg3);
+    border-radius: 8px; margin-bottom: 8px;
+    border: 1px solid var(--border);
+  }
+  .ex-name { flex: 1; font-size: 13px; font-weight: 500; }
+  .ex-sets { font-size: 11px; color: var(--text2); font-family: var(--mono); }
+  .overload-alert {
+    background: rgba(232,255,107,0.1); border: 1px solid rgba(232,255,107,0.3);
+    border-radius: 8px; padding: 12px 16px; font-size: 13px; color: var(--accent);
+    margin-bottom: 12px; display: flex; align-items: center; gap: 10px;
+  }
+
+  /* FINANCE */
+  .pie-legend { display: flex; flex-direction: column; gap: 10px; justify-content: center; }
+  .legend-item { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .asset-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px;
+  }
+  .asset-row:last-child { border-bottom: none; }
+
+  /* ORDERS */
+  .order-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px; background: var(--bg3);
+    border-radius: 8px; margin-bottom: 6px;
+    font-size: 13px;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    main { padding: 16px; }
+    .grid2, .grid3, .grid4 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-label">LIFE OS</div>
+  <div style="overflow:hidden;flex:1">
+    <div class="ticker-track" id="ticker">
+      <!-- filled by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">⬡ LIFE.OS</div>
+  <div class="nav-tab active" onclick="showTab('overview')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    Overview
+  </div>
+  <div class="nav-tab" onclick="showTab('health')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    Health
+  </div>
+  <div class="nav-tab" onclick="showTab('gym')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4v16M18 4v16M3 12h18M6 8h2M16 8h2M6 16h2M16 16h2"/></svg>
+    Gym
+  </div>
+  <div class="nav-tab" onclick="showTab('finance')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    Finance
+  </div>
+  <div class="nav-tab" onclick="showTab('settings')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    Settings
+  </div>
+</nav>
+
+<main>
+
+<!-- ===== OVERVIEW ===== -->
+<div class="section active" id="tab-overview">
+  <div class="grid4" style="margin-bottom:16px">
+    <div class="stat">
+      <div class="stat-label">Net Worth</div>
+      <div class="stat-val" style="color:var(--accent)" id="ov-networth">$0</div>
+      <div class="stat-sub">↑ 2.4% this month</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Today's Water</div>
+      <div class="stat-val" id="ov-water">0 / 0 oz</div>
+      <div class="stat-sub" id="ov-water-pct">0% of goal</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Supplements</div>
+      <div class="stat-val" id="ov-supps">0/0</div>
+      <div class="stat-sub">taken today</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Weight</div>
+      <div class="stat-val" id="ov-weight">—</div>
+      <div class="stat-sub" id="ov-weight-sub">Log today's weight</div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-title">Goals</div>
+      <div id="goals-list"></div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <input type="text" id="new-goal" placeholder="Add a goal..." style="flex:1" />
+        <button class="btn btn-accent" onclick="addGoal()">Add</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Upcoming Bills <span class="badge badge-orange" id="bill-alert-badge"></span></div>
+      <div id="upcoming-bills"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Quick Log</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-ghost" onclick="showTab('health');setTimeout(()=>document.getElementById('water-add-btn').click(),200)">+ Water</button>
+      <button class="btn btn-ghost" onclick="showTab('health');setTimeout(()=>document.getElementById('weight-input').focus(),200)">+ Weight</button>
+      <button class="btn btn-ghost" onclick="showTab('gym')">+ Gym Session</button>
+      <button class="btn btn-ghost" onclick="showTab('finance');setTimeout(()=>document.getElementById('order-name').focus(),200)">+ Order</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== HEALTH ===== -->
+<div class="section" id="tab-health">
+
+  <!-- SUPPLEMENTS -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Supplements</div>
+    <div id="supp-windows"></div>
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:10px;font-family:var(--mono)">ADD SUPPLEMENT</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="text" id="new-supp-name" placeholder="Name (e.g. Creatine)" style="flex:2;min-width:140px"/>
+        <input type="text" id="new-supp-dose" placeholder="Dose (e.g. 5g)" style="flex:1;min-width:80px"/>
+        <select id="new-supp-window" style="flex:1;min-width:100px">
+          <option value="morning">Morning</option>
+          <option value="lunch">Lunch</option>
+          <option value="evening">Evening</option>
+        </select>
+        <button class="btn btn-accent" onclick="addSupplement()">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- WATER -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Hydration</div>
+    <div class="grid2">
+      <div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:16px">
+          <span style="font-size:40px;font-weight:600;color:var(--blue)" id="water-current">0</span>
+          <span style="font-size:18px;color:var(--text2)" id="water-goal-disp">/ 0 oz</span>
+        </div>
+        <div class="progress-track" style="margin-bottom:16px;height:10px">
+          <div class="progress-fill" id="water-bar" style="background:var(--blue);width:0%"></div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-ghost" id="water-add-btn" onclick="addWater(8)">+8 oz</button>
+          <button class="btn btn-ghost" onclick="addWater(16)">+16 oz</button>
+          <button class="btn btn-ghost" onclick="addWater(32)">+32 oz</button>
+          <button class="btn btn-danger" onclick="resetWater()">Reset</button>
+        </div>
+      </div>
+      <div style="background:var(--bg3);border-radius:10px;padding:16px">
+        <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:12px">HYDRATION FACTORS</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:12px">
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">Base (weight)</span><span id="factor-base">—</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">Activity boost</span><span id="factor-activity">—</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">Caffeine offset</span><span id="factor-caffeine">—</span></div>
+          <div style="display:flex;justify-content:space-between;border-top:1px solid var(--border);padding-top:8px;font-weight:600"><span>Daily Goal</span><span style="color:var(--blue)" id="factor-total">—</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEIGHT -->
+  <div class="card">
+    <div class="card-title">Weight Tracking</div>
+    <div style="display:flex;gap:10px;margin-bottom:20px;align-items:flex-end">
+      <div style="flex:1">
+        <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:6px">TODAY'S WEIGHT (lbs)</div>
+        <input type="number" id="weight-input" placeholder="Enter weight..." step="0.1" />
+      </div>
+      <button class="btn btn-accent" onclick="logWeight()">Log</button>
+    </div>
+    <div style="position:relative;height:200px;margin-bottom:12px">
+      <canvas id="weightChart"></canvas>
+    </div>
+    <div style="font-size:11px;color:var(--text3);font-family:var(--mono)">
+      — Actual &nbsp;&nbsp; ··· Trend (7-day avg)
+    </div>
+  </div>
+</div>
+
+<!-- ===== GYM ===== -->
+<div class="section" id="tab-gym">
+  <div class="grid2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-title">Current Split</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <button class="btn btn-accent" id="split-push" onclick="setSplit('push')">Push</button>
+        <button class="btn btn-ghost" id="split-pull" onclick="setSplit('pull')">Pull</button>
+        <button class="btn btn-ghost" id="split-legs" onclick="setSplit('legs')">Legs</button>
+        <button class="btn btn-ghost" id="split-upper" onclick="setSplit('upper')">Upper</button>
+        <button class="btn btn-ghost" id="split-lower" onclick="setSplit('lower')">Lower</button>
+      </div>
+      <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:6px">GYM LOCATION</div>
+      <select id="gym-location" style="width:100%">
+        <option>Home Gym</option>
+        <option>School Gym</option>
+        <option>Commercial Gym</option>
+      </select>
+    </div>
+    <div class="card">
+      <div class="card-title">Session Stats</div>
+      <div class="grid2" style="gap:10px">
+        <div class="stat"><div class="stat-label">Total Volume</div><div class="stat-val" id="gym-volume">0 lbs</div></div>
+        <div class="stat"><div class="stat-label">Exercises</div><div class="stat-val" id="gym-ex-count">0</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="overload-alerts"></div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Log Exercise</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      <input type="text" id="ex-name" placeholder="Exercise name" style="flex:2;min-width:140px"/>
+      <input type="number" id="ex-weight" placeholder="Weight (lbs)" style="flex:1;min-width:90px"/>
+      <input type="number" id="ex-sets" placeholder="Sets" style="flex:0.5;min-width:60px" value="3"/>
+      <input type="number" id="ex-reps" placeholder="Reps" style="flex:0.5;min-width:60px" value="8"/>
+      <button class="btn btn-accent" onclick="logExercise()">Log</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Today's Log</div>
+    <div id="exercise-log"></div>
+  </div>
+</div>
+
+<!-- ===== FINANCE ===== -->
+<div class="section" id="tab-finance">
+
+  <!-- NET WORTH SUMMARY -->
+  <div class="grid4" style="margin-bottom:16px">
+    <div class="stat" style="grid-column:span 1">
+      <div class="stat-label">Total Net Worth</div>
+      <div class="stat-val" style="color:var(--accent)" id="fin-networth">$0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">1% Rule</div>
+      <div class="stat-val" id="fin-one-pct">$0</div>
+      <div class="stat-sub">Think twice above this</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Monthly Overhead</div>
+      <div class="stat-val" id="fin-overhead">$0</div>
+      <div class="stat-sub" id="fin-overhead-sub">subscriptions</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Liquid Cash</div>
+      <div class="stat-val" id="fin-liquid">$0</div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-bottom:16px">
+    <!-- ASSETS -->
+    <div class="card">
+      <div class="card-title">Assets</div>
+      <div id="asset-list"></div>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+        <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:8px">ADD ASSET</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input type="text" id="asset-name" placeholder="Name" style="flex:2;min-width:100px"/>
+          <select id="asset-type" style="flex:1;min-width:100px">
+            <option value="cash">Cash</option>
+            <option value="brokerage">Brokerage</option>
+            <option value="crypto">Crypto</option>
+            <option value="physical">Physical</option>
+          </select>
+          <input type="number" id="asset-value" placeholder="$" style="flex:1;min-width:80px"/>
+          <button class="btn btn-accent" onclick="addAsset()">Add</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PIE CHART -->
+    <div class="card" style="display:flex;flex-direction:column;gap:16px">
+      <div class="card-title">Portfolio Breakdown</div>
+      <div style="display:flex;gap:24px;align-items:center;flex:1">
+        <canvas id="pieChart" style="max-width:160px;max-height:160px"></canvas>
+        <div class="pie-legend" id="pie-legend"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-bottom:16px">
+    <!-- SUBSCRIPTIONS -->
+    <div class="card">
+      <div class="card-title">Subscriptions</div>
+      <div id="sub-list"></div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input type="text" id="sub-name" placeholder="Service name" style="flex:2;min-width:120px"/>
+          <input type="number" id="sub-cost" placeholder="$/mo" style="flex:1;min-width:70px"/>
+          <input type="number" id="sub-day" placeholder="Bill day" style="flex:0.7;min-width:60px" min="1" max="31"/>
+          <button class="btn btn-accent" onclick="addSubscription()">Add</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORDERS -->
+    <div class="card">
+      <div class="card-title">Orders / Purchases</div>
+      <div id="order-list"></div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input type="text" id="order-name" placeholder="Item" style="flex:2;min-width:120px"/>
+          <input type="number" id="order-cost" placeholder="Cost" style="flex:1;min-width:70px"/>
+          <select id="order-account" style="flex:1;min-width:100px">
+            <option value="cash">Cash</option>
+            <option value="brokerage">Brokerage</option>
+          </select>
+          <button class="btn btn-accent" onclick="addOrder()">Log</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SETTINGS ===== -->
+<div class="section" id="tab-settings">
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Profile & Hydration Calculator</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div>
+          <div style="font-size:12px;color:var(--text2);margin-bottom:5px">Name</div>
+          <input type="text" id="s-name" placeholder="Your name" />
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--text2);margin-bottom:5px">Weight (lbs)</div>
+          <input type="number" id="s-weight" placeholder="e.g. 170" />
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--text2);margin-bottom:5px">Age</div>
+          <input type="number" id="s-age" placeholder="e.g. 25" />
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--text2);margin-bottom:5px">Activity Level</div>
+          <select id="s-activity">
+            <option value="1">Sedentary</option>
+            <option value="1.2">Lightly active</option>
+            <option value="1.5" selected>Moderately active</option>
+            <option value="1.8">Very active</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--text2);margin-bottom:5px">Daily Caffeine (mg)</div>
+          <input type="number" id="s-caffeine" placeholder="e.g. 200" value="0"/>
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--text2);margin-bottom:5px">Stimulant medication?</div>
+          <select id="s-stim">
+            <option value="0">No</option>
+            <option value="1">Yes (ADHD/other)</option>
+          </select>
+        </div>
+        <button class="btn btn-accent" onclick="saveSettings()" style="width:100%">Save Settings</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Data</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button class="btn btn-ghost" onclick="exportData()" style="width:100%;justify-content:center">Export All Data (JSON)</button>
+        <button class="btn btn-danger" onclick="clearData()" style="width:100%;justify-content:center">Clear All Data</button>
+      </div>
+      <div style="margin-top:20px;padding:14px;background:var(--bg3);border-radius:8px">
+        <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:8px">DEPLOY AS WEB APP</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.7">
+          1. Download this file<br>
+          2. Push to GitHub repo<br>
+          3. Deploy free on Vercel<br>
+          4. On phone: open URL → Share → "Add to Home Screen"<br>
+          5. Done — runs as a native app!
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+// ============ STATE ============
+let state = JSON.parse(localStorage.getItem('lifeos') || 'null') || {
+  goals: ['Hit my target weight', 'Max out Roth IRA this year', 'Read 24 books', 'Run a 5K'],
+  supplements: [
+    {id:1,name:'Magnesium Glycinate',dose:'400mg',window:'evening',taken:false,lowStock:false},
+    {id:2,name:'Creatine',dose:'5g',window:'morning',taken:false,lowStock:false},
+    {id:3,name:'L-Theanine',dose:'200mg',window:'morning',taken:false,lowStock:false},
+    {id:4,name:'Vitamin D3',dose:'2000IU',window:'morning',taken:false,lowStock:false},
+  ],
+  waterCurrent: 0,
+  weightLog: [],
+  exercises: [],
+  currentSplit: 'push',
+  assets: [
+    {id:1,name:'Checking',type:'cash',value:3200},
+    {id:2,name:'Savings',type:'cash',value:8500},
+    {id:3,name:'Vanguard',type:'brokerage',value:12000},
+    {id:4,name:'Bitcoin',type:'crypto',value:4300},
+  ],
+  subscriptions: [
+    {id:1,name:'Claude Pro',cost:20,day:15},
+    {id:2,name:'Spotify',cost:10,day:3},
+    {id:3,name:'Netflix',cost:15,day:22},
+  ],
+  orders: [],
+  settings: {name:'', weight:170, age:25, activity:1.5, caffeine:200, stim:0},
+  lastReset: new Date().toDateString(),
+};
+
+function save() { localStorage.setItem('lifeos', JSON.stringify(state)); }
+
+// ============ TABS ============
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t=>{
+    if(t.getAttribute('onclick')&&t.getAttribute('onclick').includes(id)) t.classList.add('active');
+  });
+  if(id==='health') { renderSupps(); renderWater(); renderWeightChart(); }
+  if(id==='gym') renderGym();
+  if(id==='finance') renderFinance();
+  if(id==='settings') loadSettings();
+  if(id==='overview') renderOverview();
+}
+
+// ============ TICKER ============
+function buildTicker() {
+  const alerts = [];
+  // Goals
+  state.goals.forEach(g=>alerts.push({text:g,color:'#0a0a0a'}));
+  // Missed supps
+  const hour = new Date().getHours();
+  const windows = getWindows();
+  state.supplements.forEach(s=>{
+    if(!s.taken) {
+      const win = windows[s.window];
+      if(win && hour > win.endHour) alerts.push({text:`⚠ MISSED: ${s.name}`,color:'#f87171'});
+    }
+  });
+  // Upcoming bills
+  const today = new Date().getDate();
+  state.subscriptions.forEach(s=>{
+    const daysUntil = ((s.day - today + 31) % 31);
+    if(daysUntil <= 3) alerts.push({text:`⚡ BILL DUE: ${s.name} $${s.cost} in ${daysUntil}d`,color:'#fb923c'});
+  });
+  // Low stock supps
+  state.supplements.filter(s=>s.lowStock).forEach(s=>alerts.push({text:`📦 LOW: ${s.name}`,color:'#fb923c'}));
+
+  const track = document.getElementById('ticker');
+  const items = [...alerts,...alerts];
+  track.innerHTML = items.map(a=>`<span class="ticker-item" style="color:${a.color}">${a.text}<span class="dot"></span></span>`).join('');
+}
+
+// ============ GOALS ============
+function addGoal() {
+  const inp = document.getElementById('new-goal');
+  if(!inp.value.trim()) return;
+  state.goals.push(inp.value.trim());
+  inp.value='';
+  save(); renderOverview(); buildTicker();
+}
+
+// ============ OVERVIEW ============
+function renderOverview() {
+  const list = document.getElementById('goals-list');
+  list.innerHTML = state.goals.map((g,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+      <span style="flex:1">${g}</span>
+      <button onclick="removeGoal(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px">×</button>
+    </div>`).join('');
+
+  const taken = state.supplements.filter(s=>s.taken).length;
+  document.getElementById('ov-supps').textContent = `${taken}/${state.supplements.length}`;
+
+  const goal = calcWaterGoal();
+  document.getElementById('ov-water').textContent = `${state.waterCurrent} / ${goal} oz`;
+  document.getElementById('ov-water-pct').textContent = `${Math.min(100,Math.round(state.waterCurrent/goal*100))||0}% of goal`;
+
+  const nw = calcNetWorth();
+  document.getElementById('ov-networth').textContent = '$'+nw.toLocaleString();
+
+  const last = state.weightLog[state.weightLog.length-1];
+  if(last) {
+    document.getElementById('ov-weight').textContent = last.w + ' lbs';
+    document.getElementById('ov-weight-sub').textContent = 'Logged ' + last.date;
+  }
+
+  // Upcoming bills
+  const today = new Date().getDate();
+  const billsEl = document.getElementById('upcoming-bills');
+  const sorted = [...state.subscriptions].sort((a,b)=>{
+    const da=((a.day-today+31)%31), db=((b.day-today+31)%31);
+    return da-db;
+  });
+  const badge = document.getElementById('bill-alert-badge');
+  const alertCount = sorted.filter(s=>(s.day-today+31)%31<=3).length;
+  badge.textContent = alertCount > 0 ? alertCount + ' due soon' : '';
+  billsEl.innerHTML = sorted.slice(0,5).map(s=>{
+    const d = (s.day-today+31)%31;
+    const col = d<=3?'var(--orange)':d<=7?'var(--accent)':'var(--text2)';
+    return `<div class="asset-row"><span>${s.name}</span><span style="color:${col};font-family:var(--mono);font-size:12px">$${s.cost}/mo · ${d===0?'TODAY':d+'d'}</span></div>`;
+  }).join('');
+}
+
+function removeGoal(i) { state.goals.splice(i,1); save(); renderOverview(); buildTicker(); }
+
+// ============ WATER ============
+function getWindows() {
+  return {
+    morning:{label:'Morning',time:'7–10 AM',endHour:10},
+    lunch:{label:'Lunch',time:'12–2 PM',endHour:14},
+    evening:{label:'Evening',time:'7–10 PM',endHour:22}
+  };
+}
+
+function calcWaterGoal() {
+  const s = state.settings;
+  const base = s.weight * 0.5;
+  const activity = (s.activity - 1) * 20;
+  const caffeine = (s.caffeine / 100) * 4;
+  const stim = s.stim ? 8 : 0;
+  return Math.round(base + activity + caffeine + stim);
+}
+
+function addWater(oz) {
+  state.waterCurrent += oz; save();
+  renderWater(); renderOverview(); buildTicker();
+}
+
+function resetWater() {
+  state.waterCurrent = 0; save();
+  renderWater(); renderOverview();
+}
+
+function renderWater() {
+  const goal = calcWaterGoal();
+  const pct = Math.min(100, Math.round(state.waterCurrent/goal*100)) || 0;
+  document.getElementById('water-current').textContent = state.waterCurrent;
+  document.getElementById('water-goal-disp').textContent = `/ ${goal} oz`;
+  document.getElementById('water-bar').style.width = pct+'%';
+
+  const s = state.settings;
+  const base = Math.round(s.weight * 0.5);
+  const activity = Math.round((s.activity-1)*20);
+  const caffeine = Math.round((s.caffeine/100)*4);
+  document.getElementById('factor-base').textContent = base+' oz';
+  document.getElementById('factor-activity').textContent = '+'+activity+' oz';
+  document.getElementById('factor-caffeine').textContent = '+'+caffeine+' oz';
+  document.getElementById('factor-total').textContent = goal+' oz';
+}
+
+// ============ SUPPLEMENTS ============
+function addSupplement() {
+  const name = document.getElementById('new-supp-name').value.trim();
+  const dose = document.getElementById('new-supp-dose').value.trim();
+  const win = document.getElementById('new-supp-window').value;
+  if(!name) return;
+  state.supplements.push({id:Date.now(),name,dose,window:win,taken:false,lowStock:false});
+  document.getElementById('new-supp-name').value='';
+  document.getElementById('new-supp-dose').value='';
+  save(); renderSupps(); buildTicker();
+}
+
+function toggleSupp(id) {
+  const s = state.supplements.find(s=>s.id===id);
+  if(s) { s.taken = !s.taken; save(); renderSupps(); renderOverview(); buildTicker(); }
+}
+
+function toggleLowStock(id,e) {
+  e.stopPropagation();
+  const s = state.supplements.find(s=>s.id===id);
+  if(s) { s.lowStock = !s.lowStock; save(); renderSupps(); buildTicker(); }
+}
+
+function deleteSupp(id,e) {
+  e.stopPropagation();
+  state.supplements = state.supplements.filter(s=>s.id!==id);
+  save(); renderSupps(); renderOverview();
+}
+
+function renderSupps() {
+  const wins = getWindows();
+  const hour = new Date().getHours();
+  const el = document.getElementById('supp-windows');
+  el.innerHTML = Object.entries(wins).map(([key,win])=>{
+    const supps = state.supplements.filter(s=>s.window===key);
+    if(!supps.length) return '';
+    const past = hour > win.endHour;
+    return `<div class="supp-window">
+      <div class="supp-window-header">
+        <span>${win.label}</span>
+        <span style="color:var(--text3)">${win.time}</span>
+        ${past?'<span class="badge badge-red">WINDOW PASSED</span>':''}
+      </div>
+      ${supps.map(s=>{
+        const missed = past && !s.taken;
+        return `<div class="supp-row ${missed?'missed':''} ${s.taken?'taken':''}" onclick="toggleSupp(${s.id})">
+          <div style="width:18px;height:18px;border-radius:50%;border:2px solid ${s.taken?'var(--green)':'var(--border2)'};background:${s.taken?'var(--green)':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            ${s.taken?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':''}
+          </div>
+          <span class="supp-name">${s.name}</span>
+          <span class="supp-dose">${s.dose}</span>
+          <button onclick="toggleLowStock(${s.id},event)" style="background:none;border:none;cursor:pointer;font-size:10px;color:${s.lowStock?'var(--orange)':'var(--text3)'};padding:2px 6px" title="Low stock">📦</button>
+          <button onclick="deleteSupp(${s.id},event)" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px">×</button>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+// ============ WEIGHT CHART ============
+let weightChartInst = null;
+function logWeight() {
+  const v = parseFloat(document.getElementById('weight-input').value);
+  if(isNaN(v)) return;
+  const today = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  state.weightLog.push({date:today,w:v});
+  if(state.weightLog.length>30) state.weightLog.shift();
+  document.getElementById('weight-input').value='';
+  save(); renderWeightChart(); renderOverview();
+}
+
+function renderWeightChart() {
+  const ctx = document.getElementById('weightChart').getContext('2d');
+  const logs = state.weightLog;
+  if(weightChartInst) weightChartInst.destroy();
+
+  const labels = logs.map(l=>l.date);
+  const actual = logs.map(l=>l.w);
+
+  // 7-day rolling average trend
+  const trend = actual.map((_,i)=>{
+    const slice = actual.slice(Math.max(0,i-3),i+4);
+    return parseFloat((slice.reduce((a,b)=>a+b,0)/slice.length).toFixed(1));
+  });
+
+  weightChartInst = new Chart(ctx,{
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {label:'Weight',data:actual,borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,0.08)',tension:0.3,pointRadius:4,pointBackgroundColor:'#60a5fa'},
+        {label:'Trend',data:trend,borderColor:'rgba(232,255,107,0.6)',borderDash:[5,5],tension:0.4,pointRadius:0}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#555',font:{size:10}}},
+        y:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#555',font:{size:10}}}
+      }
+    }
+  });
+}
+
+// ============ GYM ============
+function setSplit(s) {
+  state.currentSplit = s;
+  document.querySelectorAll('[id^=split-]').forEach(b=>{
+    b.className = b.id === 'split-'+s ? 'btn btn-accent' : 'btn btn-ghost';
+  });
+  save();
+}
+
+function logExercise() {
+  const name = document.getElementById('ex-name').value.trim();
+  const weight = parseFloat(document.getElementById('ex-weight').value);
+  const sets = parseInt(document.getElementById('ex-sets').value)||3;
+  const reps = parseInt(document.getElementById('ex-reps').value)||8;
+  if(!name||isNaN(weight)) return;
+  state.exercises.push({id:Date.now(),name,weight,sets,reps,split:state.currentSplit});
+  document.getElementById('ex-name').value='';
+  document.getElementById('ex-weight').value='';
+  save(); renderGym();
+}
+
+function deleteExercise(id) {
+  state.exercises = state.exercises.filter(e=>e.id!==id);
+  save(); renderGym();
+}
+
+function renderGym() {
+  setSplit(state.currentSplit);
+  const today = state.exercises;
+  const volume = today.reduce((s,e)=>s+e.weight*e.sets*e.reps,0);
+  document.getElementById('gym-volume').textContent = volume.toLocaleString()+' lbs';
+  document.getElementById('gym-ex-count').textContent = today.length;
+
+  // Overload alerts
+  const alertEl = document.getElementById('overload-alerts');
+  const alerts = today.filter(e=>e.reps>=8);
+  alertEl.innerHTML = alerts.map(e=>`
+    <div class="overload-alert">
+      <span>🏋️</span>
+      <span><strong>Progressive overload:</strong> You hit ${e.reps} reps on ${e.name} at ${e.weight}lbs — time to add 5lbs next session!</span>
+    </div>`).join('');
+
+  const logEl = document.getElementById('exercise-log');
+  if(!today.length) { logEl.innerHTML='<div style="color:var(--text3);font-size:13px;padding:12px 0">No exercises logged yet. Add one above!</div>'; return; }
+  logEl.innerHTML = today.map(e=>`
+    <div class="exercise-row">
+      <div class="ex-name">${e.name}</div>
+      <div class="ex-sets">${e.sets}×${e.reps} @ ${e.weight}lbs</div>
+      <div style="font-size:11px;color:var(--text3);font-family:var(--mono)">${(e.weight*e.sets*e.reps).toLocaleString()} vol</div>
+      <button onclick="deleteExercise(${e.id})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;margin-left:auto">×</button>
+    </div>`).join('');
+}
+
+// ============ FINANCE ============
+function calcNetWorth() { return state.assets.reduce((s,a)=>s+a.value,0); }
+
+const assetColors = {cash:'#4ade80',brokerage:'#60a5fa',crypto:'#a78bfa',physical:'#fb923c'};
+let pieChartInst = null;
+
+function addAsset() {
+  const name = document.getElementById('asset-name').value.trim();
+  const type = document.getElementById('asset-type').value;
+  const value = parseFloat(document.getElementById('asset-value').value);
+  if(!name||isNaN(value)) return;
+  state.assets.push({id:Date.now(),name,type,value});
+  document.getElementById('asset-name').value='';
+  document.getElementById('asset-value').value='';
+  save(); renderFinance();
+}
+
+function deleteAsset(id) {
+  state.assets = state.assets.filter(a=>a.id!==id);
+  save(); renderFinance();
+}
+
+function addSubscription() {
+  const name = document.getElementById('sub-name').value.trim();
+  const cost = parseFloat(document.getElementById('sub-cost').value);
+  const day = parseInt(document.getElementById('sub-day').value)||1;
+  if(!name||isNaN(cost)) return;
+  state.subscriptions.push({id:Date.now(),name,cost,day});
+  document.getElementById('sub-name').value='';
+  document.getElementById('sub-cost').value='';
+  document.getElementById('sub-day').value='';
+  save(); renderFinance(); buildTicker();
+}
+
+function deleteSub(id) {
+  state.subscriptions = state.subscriptions.filter(s=>s.id!==id);
+  save(); renderFinance(); renderOverview(); buildTicker();
+}
+
+function addOrder() {
+  const name = document.getElementById('order-name').value.trim();
+  const cost = parseFloat(document.getElementById('order-cost').value);
+  const account = document.getElementById('order-account').value;
+  if(!name||isNaN(cost)) return;
+
+  // Deduct from asset
+  const asset = state.assets.find(a=>a.type===account);
+  if(asset) asset.value = Math.max(0, asset.value-cost);
+
+  state.orders.push({id:Date.now(),name,cost,account,date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'})});
+  document.getElementById('order-name').value='';
+  document.getElementById('order-cost').value='';
+  save(); renderFinance(); renderOverview();
+}
+
+function deleteOrder(id) {
+  state.orders = state.orders.filter(o=>o.id!==id);
+  save(); renderFinance();
+}
+
+function renderFinance() {
+  const nw = calcNetWorth();
+  document.getElementById('fin-networth').textContent = '$'+nw.toLocaleString();
+  document.getElementById('ov-networth').textContent = '$'+nw.toLocaleString();
+  document.getElementById('fin-one-pct').textContent = '$'+(nw*0.01).toLocaleString(undefined,{maximumFractionDigits:0});
+  const overhead = state.subscriptions.reduce((s,sub)=>s+sub.cost,0);
+  document.getElementById('fin-overhead').textContent = '$'+overhead.toFixed(0);
+  document.getElementById('fin-overhead-sub').textContent = state.subscriptions.length+' subscriptions';
+  const liquid = state.assets.filter(a=>a.type==='cash').reduce((s,a)=>s+a.value,0);
+  document.getElementById('fin-liquid').textContent = '$'+liquid.toLocaleString();
+
+  // Asset list
+  const al = document.getElementById('asset-list');
+  al.innerHTML = state.assets.map(a=>`
+    <div class="asset-row">
+      <span>${a.name} <span class="badge badge-blue" style="margin-left:4px">${a.type}</span></span>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-family:var(--mono);font-size:13px">$${a.value.toLocaleString()}</span>
+        <span style="font-size:10px;color:var(--text3)">${nw>0?Math.round(a.value/nw*100):0}%</span>
+        <button onclick="deleteAsset(${a.id})" style="background:none;border:none;color:var(--text3);cursor:pointer">×</button>
+      </div>
+    </div>`).join('');
+
+  // Pie chart
+  const ctx = document.getElementById('pieChart').getContext('2d');
+  if(pieChartInst) pieChartInst.destroy();
+  const groups = {};
+  state.assets.forEach(a=>{ groups[a.type]=(groups[a.type]||0)+a.value; });
+  const labels=Object.keys(groups), vals=Object.values(groups);
+  const colors=labels.map(l=>assetColors[l]||'#888');
+  pieChartInst = new Chart(ctx,{
+    type:'doughnut',
+    data:{labels,datasets:[{data:vals,backgroundColor:colors,borderWidth:0,hoverOffset:4}]},
+    options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`$${ctx.raw.toLocaleString()}`}}},cutout:'65%'}
+  });
+  document.getElementById('pie-legend').innerHTML = labels.map((l,i)=>`
+    <div class="legend-item">
+      <div class="legend-dot" style="background:${colors[i]}"></div>
+      <span style="color:var(--text2)">${l}</span>
+      <span style="font-family:var(--mono);font-size:12px;margin-left:auto">$${vals[i].toLocaleString()}</span>
+    </div>`).join('');
+
+  // Subs
+  const today = new Date().getDate();
+  document.getElementById('sub-list').innerHTML = state.subscriptions.map(s=>{
+    const d = (s.day-today+31)%31;
+    const col = d<=3?'var(--orange)':d<=7?'var(--accent)':'var(--text2)';
+    return `<div class="asset-row">
+      <span>${s.name}</span>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-family:var(--mono);font-size:12px;color:${col}">${d===0?'DUE TODAY':d+'d'}</span>
+        <span style="font-family:var(--mono);font-size:13px">$${s.cost}/mo</span>
+        <button onclick="deleteSub(${s.id})" style="background:none;border:none;color:var(--text3);cursor:pointer">×</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Orders
+  document.getElementById('order-list').innerHTML = state.orders.slice(-5).reverse().map(o=>`
+    <div class="order-row">
+      <span style="flex:1">${o.name}</span>
+      <span style="font-size:11px;color:var(--text3)">${o.date}</span>
+      <span style="font-family:var(--mono);color:var(--red)">-$${o.cost.toFixed(2)}</span>
+      <button onclick="deleteOrder(${o.id})" style="background:none;border:none;color:var(--text3);cursor:pointer">×</button>
+    </div>`).join('') || '<div style="color:var(--text3);font-size:13px;padding:8px 0">No orders yet</div>';
+}
+
+// ============ SETTINGS ============
+function loadSettings() {
+  const s = state.settings;
+  document.getElementById('s-name').value = s.name||'';
+  document.getElementById('s-weight').value = s.weight||'';
+  document.getElementById('s-age').value = s.age||'';
+  document.getElementById('s-activity').value = s.activity||1.5;
+  document.getElementById('s-caffeine').value = s.caffeine||0;
+  document.getElementById('s-stim').value = s.stim||0;
+}
+
+function saveSettings() {
+  state.settings = {
+    name: document.getElementById('s-name').value,
+    weight: parseFloat(document.getElementById('s-weight').value)||170,
+    age: parseInt(document.getElementById('s-age').value)||25,
+    activity: parseFloat(document.getElementById('s-activity').value)||1.5,
+    caffeine: parseInt(document.getElementById('s-caffeine').value)||0,
+    stim: parseInt(document.getElementById('s-stim').value)||0,
+  };
+  save(); renderWater(); renderOverview();
+  alert('Settings saved!');
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'lifeos-data.json'; a.click();
+}
+
+function clearData() {
+  if(confirm('Clear ALL data? This cannot be undone.')) {
+    localStorage.removeItem('lifeos'); location.reload();
+  }
+}
+
+// ============ DAILY RESET ============
+function checkDailyReset() {
+  const today = new Date().toDateString();
+  if(state.lastReset !== today) {
+    state.supplements.forEach(s=>s.taken=false);
+    state.waterCurrent=0;
+    state.exercises=[];
+    state.lastReset=today;
+    save();
+  }
+}
+
+// ============ INIT ============
+checkDailyReset();
+buildTicker();
+renderOverview();
+renderWater();
+</script>
+</body>
+</html>
